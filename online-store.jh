@@ -1,0 +1,93 @@
+entity Product {
+	name String required
+    description String
+    price BigDecimal required min(0)
+    size Size required
+    image ImageBlob
+}
+
+enum Size {
+	S, M, L, WL, XXL
+}
+
+entity ProductCategory {
+	name String required
+    descriptino String
+}
+
+entity Customer {
+	firstName String required
+    lastName String required
+    gender Gender required
+    email String required pattern (/^[^@\s]+@[^@\s]+\.[^@\s]+$/)
+    phone String required
+    adressLine1 String required
+    adressLine2 String 
+    country String required
+}
+enum Gender {
+	MALE, FEMALE, OTHER
+}
+
+entity ProductOrder {
+	placeDate Instant required
+    status OrderStatus required
+    code String required
+
+}
+enum OrderStatus {
+	COMPLITED, PENDING, CANCELED
+}
+
+entity OrderItem {
+	quantity Integer required min (0)
+    totalPrice BigDecimal required min(0)
+    status OrderItemStatus required
+}
+
+enum OrderItemStatus {
+	AVAILABLE, OUT_OF_STOCK, BACK_ORDER
+}
+
+entity Invoice {
+	date Instant required
+    details String 
+    status InvoiceStatus required
+    paymentMethod PaymentMethod required
+    paymentDate Instant required
+    paymentAmount BigDecimal required
+}
+
+enum InvoiceStatus{
+	PAID, ISSUED, CENCELED
+}
+
+enum PaymentMethod {
+	CREDIT_CARD, CASH_ON_DELIVERY, PAYPAL
+}
+
+entity Shipment {
+	trackingCode String
+    date Instant required
+    details String
+}
+
+relationship OneToOne {
+	Customer{user} to User
+}
+relationship ManyToOne {
+	OrderItem{product} to Product
+}
+
+relationship OneToMany {
+	Customer{order} to ProductOrder{customer},
+    ProductOrder{orderItem} to OrderItem{order},
+    ProductOrder{invoice} to Invoice{order},
+    Invoice{shipment} to Shipment{invoice},
+    ProductCategory{product} to Product{productCategory}
+}
+
+service * with serviceClass
+paginate Product, Customer, ProductOrder, Invoice, Shipment, OrderItem with pagination 
+
+
